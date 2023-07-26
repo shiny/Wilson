@@ -1,0 +1,13 @@
+{
+  "name": "handyacme",
+  "version": "1.0.0",
+  "module": "src/index.ts",
+  "type": "module",
+  "devDependencies": {
+    "bun-types": "latest",
+    "jest-fetch-mock": "^3.0.3"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  }
+}

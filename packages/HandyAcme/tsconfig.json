@@ -1,0 +1,14 @@
+{
+    "compilerOptions": {
+        "types": ["bun-types"],
+        "lib": ["ESNext"],
+        "module": "ESNext",
+        "target": "ESNext",
+        "esModuleInterop": true,
+        
+        // best practices
+        "strict": true,
+        "forceConsistentCasingInFileNames": true,
+        "skipLibCheck": true
+    }
+}
