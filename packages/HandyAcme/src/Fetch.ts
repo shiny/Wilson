@@ -1,6 +1,16 @@
-
 type FetchFn = (request: Request | string | URL, init?: FetchRequestInit | undefined) => Promise<Response>
+type IfMatchFn = (reg: RegExp | string | MockConditionCallback) => typeof Fetch | Fetch
 type MockConditionCallback = (url: string) => boolean
+
+/**
+ * mock when condition was matched
+ * 
+ * when condition is a string matchs url startsWith condition
+ * when condition is a RegExp matchs url
+ * when condition is a Callback and returns true then matchs
+ * 
+ * @param condition 
+ */
 class MockCondition {
     constructor(public condition: string | RegExp | MockConditionCallback) {}
     match(request: Request | string | URL) {
@@ -14,53 +24,111 @@ class MockCondition {
         }
     }
 }
-const emptyMockCondition = {
-    condition: '',
-    match() { return false }
-}
 
+/**
+ * a Fetch wraper
+ * @example
+ * ```typescript
+ * const result = await Fetch
+ *      .mockJsonResponse({ status: 'ok' })
+ *      .ifMatch('https://dummyjson.com')
+ *      .fetch('https://dummyjson.com/products')
+ * // result is { status: 'ok' }
+ * console.log(result)
+ * ```
+ */
 export default class Fetch {
-    static #mockedResponse?: Response
-    static #mockCondition: MockCondition = emptyMockCondition
-    static proxy: string
+    #mockedResponse?: Response
+    private static globalMockedResponse?: Response
+
+    get mockedResponse() {
+        if (this.#mockedResponse) {
+            return this.#mockedResponse
+        }
+        if (Fetch.globalMockedResponse) {
+            return Fetch.globalMockedResponse
+        }
+        return null
+    }
+
+    static get mockedResponse() {
+        return this.globalMockedResponse
+    }
+
+    static globalMockCondition?: MockCondition
+    #mockCondition?: MockCondition
+
+    static globalProxy: string
+    #proxy?: string
+    
+    get proxy() {
+        return this.#proxy ?? Fetch.globalProxy
+    }
+
     static fetch: FetchFn = async (request, init = {}) => {
-        if (Fetch.#mockCondition.match(request)) {
-            if (!Fetch.#mockedResponse) {
+        return this.createInstance().fetch(request, init)
+    }
+    fetch: FetchFn = async(request, init = {}) => {
+        if (this.#mockCondition?.match(request) || Fetch.globalMockCondition?.match(request)) {
+            if (!this.mockedResponse) {
                 throw new Error('Mock enabled but no response set')
             }
-            return Fetch.#mockedResponse
-        } else {
-            if (this.proxy && !init.proxy) {
-                init.proxy = this.proxy
-            }
-            return fetch(request, init)
+            return this.mockedResponse
         }
+        if (this.proxy && !init.proxy) {
+            init.proxy = this.proxy
+        }
+        return fetch(request, init)
     }
 
-    static async fetchJSON<T>(url: string) {
-        const response = await this.fetch(url)
+    static async fetchJSON<T>(url: string, init = {}) {
+        return this.createInstance().fetchJSON(url, init)
+    }
+    async fetchJSON<T>(url: string, init = {}) {
+        const response = await this.fetch(url, init)
         return response.json<T>()
     }
-    mockResponse = (response: Response) => Fetch.mockResponse(response)
-    static mockResponse(response: Response) {
+
+    mockResponse(response: Response) {
         this.#mockedResponse = response
         return this
     }
-    static mockJsonResponse(jsonData: any) {
-        this.#mockedResponse = new Response(JSON.stringify(jsonData))
+    static mockResponse(response: Response) {
+        this.globalMockedResponse = response
         return this
     }
-    static ifMatch(reg: RegExp | string | MockConditionCallback) {
+    mockJsonResponse(jsonData: any) {
+        this.mockJsonResponse(new Response(JSON.stringify(jsonData)))
+        return this
+    }
+    static mockJsonResponse(jsonData: any) {
+        this.mockResponse(new Response(JSON.stringify(jsonData)))
+        return this
+    }
+    static ifMatch: IfMatchFn = (reg) => {
+        this.globalMockCondition = new MockCondition(reg)
+        return this
+    }
+    ifMatch: IfMatchFn = (reg) => {
         this.#mockCondition = new MockCondition(reg)
         return this
     }
-    restoreMock = () => Fetch.restoreMock()
-    static restoreMock() {
-        this.#mockCondition = emptyMockCondition
+    restoreMock() {
         this.#mockedResponse = undefined
     }
+    static restoreMock() {
+        this.globalMockedResponse = undefined
+        this.globalMockCondition = undefined
+    }
     static withProxy(proxy: string) {
-        this.proxy = proxy
+        this.globalProxy = proxy
         return this
+    }
+    withProxy = (proxy: string) => {
+        this.#proxy = proxy
+        return this
+    }
+    static createInstance() {
+        return new Fetch
     }
 }
