@@ -139,7 +139,7 @@ export default class Fetch {
     }
 
     static async fetchJSON<T>(url: string, init = {}) {
-        return this.createInstance().fetchJSON(url, init)
+        return this.createInstance().fetchJSON<T>(url, init)
     }
     async fetchJSON<T>(url: string, init = {}) {
         const response = await this.fetch(url, init)
