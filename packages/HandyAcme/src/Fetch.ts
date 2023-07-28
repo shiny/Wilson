@@ -38,6 +38,9 @@ class MockCondition {
  * ```
  */
 export default class Fetch {
+    
+    // Mock Settings
+
     #mockedResponse?: Response
     private static globalMockedResponse?: Response
 
@@ -58,18 +61,72 @@ export default class Fetch {
     static globalMockCondition?: MockCondition
     #mockCondition?: MockCondition
 
+    shouldMock(request: string | Request | URL) {
+        return this.#mockCondition?.match(request) ?? Fetch.globalMockCondition?.match(request)
+    }
+
+    mockResponse(response: Response) {
+        this.#mockedResponse = response
+        return this
+    }
+    static mockResponse(response: Response) {
+        this.globalMockedResponse = response
+        return this
+    }
+    mockJsonResponse = (jsonData: any) => {
+        this.mockResponse(new Response(JSON.stringify(jsonData)))
+        return this
+    }
+    static mockJsonResponse(jsonData: any) {
+        this.mockResponse(new Response(JSON.stringify(jsonData)))
+        return this
+    }
+    mockTextResponse(text: string) {
+        this.mockResponse.call(this, new Response(text))
+        return this
+    }
+    static mockTextResponse(text: string) {
+        this.mockResponse(new Response(text))
+        return this
+    }
+    static ifMatch: IfMatchFn = (reg) => {
+        this.globalMockCondition = new MockCondition(reg)
+        return this
+    }
+    ifMatch: IfMatchFn = (reg) => {
+        this.#mockCondition = new MockCondition(reg)
+        return this
+    }
+    restoreMock() {
+        this.#mockedResponse = undefined
+    }
+    static restoreMock() {
+        this.globalMockedResponse = undefined
+        this.globalMockCondition = undefined
+    }
+
+    // Proxy Settings
+
     static globalProxy: string
     #proxy?: string
     
     get proxy() {
         return this.#proxy ?? Fetch.globalProxy
     }
-
+    static withProxy(proxy: string) {
+        this.globalProxy = proxy
+        return this
+    }
+    withProxy = (proxy: string) => {
+        this.#proxy = proxy
+        return this
+    }
+    // Fetch Methods
     static fetch: FetchFn = async (request, init = {}) => {
         return this.createInstance().fetch(request, init)
     }
     fetch: FetchFn = async(request, init = {}) => {
-        if (this.#mockCondition?.match(request) || Fetch.globalMockCondition?.match(request)) {
+        if (this.shouldMock(request)) {
             if (!this.mockedResponse) {
                 throw new Error('Mock enabled but no response set')
             }
@@ -88,46 +145,14 @@ export default class Fetch {
         const response = await this.fetch(url, init)
         return response.json<T>()
     }
+    static async fetchText(url: string, init = {}) {
+        return this.createInstance().fetchText(url, init)
+    }
+    async fetchText(url: string, init = {}) {
+        const response = await this.fetch(url, init)
+        return response.text()
+    }
 
-    mockResponse(response: Response) {
-        this.#mockedResponse = response
-        return this
-    }
-    static mockResponse(response: Response) {
-        this.globalMockedResponse = response
-        return this
-    }
-    mockJsonResponse(jsonData: any) {
-        this.mockJsonResponse(new Response(JSON.stringify(jsonData)))
-        return this
-    }
-    static mockJsonResponse(jsonData: any) {
-        this.mockResponse(new Response(JSON.stringify(jsonData)))
-        return this
-    }
-    static ifMatch: IfMatchFn = (reg) => {
-        this.globalMockCondition = new MockCondition(reg)
-        return this
-    }
-    ifMatch: IfMatchFn = (reg) => {
-        this.#mockCondition = new MockCondition(reg)
-        return this
-    }
-    restoreMock() {
-        this.#mockedResponse = undefined
-    }
-    static restoreMock() {
-        this.globalMockedResponse = undefined
-        this.globalMockCondition = undefined
-    }
-    static withProxy(proxy: string) {
-        this.globalProxy = proxy
-        return this
-    }
-    withProxy = (proxy: string) => {
-        this.#proxy = proxy
-        return this
-    }
     static createInstance() {
         return new Fetch
     }
