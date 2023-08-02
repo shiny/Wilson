@@ -38,7 +38,9 @@ class MockCondition {
  * ```
  */
 export default class Fetch {
-    
+
+    public requestContentType?: string 
+
     // Mock Settings
 
     #mockedResponse?: Response
@@ -134,6 +136,11 @@ export default class Fetch {
         }
         if (this.proxy && !init.proxy) {
             init.proxy = this.proxy
+        }
+        if (this.requestContentType) {
+            const headers = new Headers(init.headers)
+            headers.set('content-type', this.requestContentType)
+            init.headers = headers
         }
         return fetch(request, init)
     }
