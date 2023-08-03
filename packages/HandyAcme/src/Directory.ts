@@ -16,7 +16,7 @@ export default class Directory {
     static fromResult(result: ResultDirectory) {
         return new Directory(result)
     }
-    static async fromServer(url: string) {
+    static async fromUrl(url: string) {
         const result = await Fetch.fetchJSON<ResultDirectory>(url)
         return Directory.fromResult(result)
     }
