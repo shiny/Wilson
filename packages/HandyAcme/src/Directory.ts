@@ -1,5 +1,8 @@
-import ResultDirectory from "./types/Result/Directory";
-import Fetch from "./Fetch";
+import ResultDirectory from "./types/Result/Directory"
+import Fetch from "./Fetch"
+import Providers from "./Provider"
+type SupportedProviders = keyof typeof Providers
+import { EnvTypes } from './Provider'
 
 export default class Directory {
 
@@ -11,6 +14,24 @@ export default class Directory {
 
     get newAccount() {
         return this.result.newAccount
+    }
+
+    static async from(provider: SupportedProviders, env: EnvTypes) {
+        const url = (() => {
+            switch(env) {
+                case 'production':
+                    return Providers[provider].productionUrl
+                case 'staging':
+                    return Providers[provider].stagingUrl
+                default:
+                    throw new Error(`Unknow env ${env}`)
+            }
+        })()
+        if (!url) {
+            throw new Error(`No ${env} mode in provider ${provider}`)
+        } else {
+            return Directory.fromUrl(url)
+        }
     }
 
     static fromResult(result: ResultDirectory) {
