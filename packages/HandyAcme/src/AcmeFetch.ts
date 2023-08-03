@@ -1,4 +1,4 @@
-import Account, { CapsuledRequestBody, CreateAccountOptions, CreateAccountWithEabOptions } from "./Account";
+import Account, { CapsuledRequestBody, CreateAccountOptions, CreateAccountOptionsWithEab } from "./Account";
 import AcmeResponse from "./AcmeResponse";
 import Directory from "./Directory";
 import Fetch from "./Fetch";
@@ -83,7 +83,7 @@ export default class AcmeFetch extends Fetch {
      * @param payload 
      * @returns 
      */
-    async postSignaturedUsingKey(url: string, payload: CreateAccountOptions | CreateAccountWithEabOptions) {
+    async postSignaturedUsingKey(url: string, payload: CreateAccountOptions | CreateAccountOptionsWithEab) {
 
         console.log('dokidoki', url, payload)
         const nonce = await this.nonce()

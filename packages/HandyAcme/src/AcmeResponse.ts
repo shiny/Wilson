@@ -62,7 +62,18 @@ export default class AcmeResponse {
     }
 
     get location() {
-        return this.response.headers.get('location')
+        const location = this.response.headers.get('location')
+        if (!location) {
+            throw new Error('No location field in response headers')
+        }
+        return location
+    }
+    /**
+     * Get oringinal Response
+     * @returns 
+     */
+    toWebResponse() {
+        return this.response
     }
 }
 

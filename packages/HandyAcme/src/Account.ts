@@ -1,5 +1,6 @@
 
 import AcmeFetch from "./AcmeFetch";
+import AcmeResponse from "./AcmeResponse";
 import Directory from "./Directory";
 import Key, { SupportedAlg } from "./Key";
 import { createHmac } from "crypto"
@@ -72,11 +73,26 @@ export default class Account {
     }
 
     #key?: Key
-    async generateNewKeyPair() {
+    async generateKey() {
         this.#key = await Key.generate('ES256', {
             extractable: true,
             keyUsages: ['sign']
         })
+        return this.#key
+    }
+
+    async exportPrivateKey() {
+        if (!this.#key) {
+            throw new Error('Account key havn\'t generated yet')
+        }
+        return this.#key.exportPrivateJwk()
+    }
+
+    async exportPublicKey() {
+        if (!this.#key) {
+            throw new Error('Account key havn\'t generated yet')
+        }
+        return this.#key?.exportPublicJwk()
     }
 
     public url?: string
@@ -108,6 +124,8 @@ export default class Account {
         return this.directory.meta.externalAccountRequired === true
     }
 
+    public lastResponse?: AcmeResponse
+
     /**
      * @example
      * ```typescript
@@ -122,12 +140,14 @@ export default class Account {
      * @returns 
      */
     async create(options: CreateAccountOptions) {
-        await this.generateNewKeyPair()
+        if (!this.#key) {
+            await this.generateKey()
+        }
         const fetcher = AcmeFetch
             .useDirectory(this.directory)
             .useAccount(this)
         if (this.isExternalAccountRequired) {
-            const jwk = await this.#key?.exportPublicJwk()
+            const jwk = await this.exportPublicKey()
             const hash: CapsuledSignatureFunc = (content) => {
                 return createHmac(
                     'sha256',
@@ -139,13 +159,15 @@ export default class Account {
                 kid: this.eabPair.kid,
                 url: this.directory.newAccount
             }, jwk, (content) => hash(content))
-            return fetcher.postSignaturedUsingKey(this.directory.newAccount, {
+            this.lastResponse = await fetcher.postSignaturedUsingKey(this.directory.newAccount, {
                 ...options,
                 externalAccountBinding
             })
         } else {
-            return fetcher.postSignaturedUsingKey(this.directory.newAccount, options)
+            this.lastResponse = await fetcher.postSignaturedUsingKey(this.directory.newAccount, options)
         }
+        this.url = this.lastResponse.location
+        return this
     }
 
     async sign(content: string) {
@@ -156,12 +178,9 @@ export default class Account {
     }
 
     async makeRequestBodyUsingKey(bodyProtected: Omit<RequestProtectedUsingKey, 'jwk' | 'alg'>, payload: CreateAccountOptions) {
-        if (!this.#key) {
-            throw new Error('Account key did not generated yet')
-        }
         return this.makeRequestBody({
             ...bodyProtected,
-            jwk: await this.#key.exportPublicJwk()
+            jwk: await this.exportPublicKey()
         }, payload)
     }
 
