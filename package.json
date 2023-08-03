@@ -9,6 +9,6 @@
   },
   "workspaces": ["packages/*"],
   "scripts": {
-    "dev": "bun --hot src/bootstrap.ts"
+    "dev": "bun --hot run src/index.ts"
   }
 }
