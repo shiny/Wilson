@@ -1,0 +1,19 @@
+name: Testing
+
+on:
+  push:
+    branches: [ "main", "experimental" ]
+    paths-ignore:
+      - '**/README.md'
+
+jobs:
+  testing:
+    name: testing
+    runs-on: ubuntu-latest
+    steps:
+      - uses: oven-sh/setup-bun@v1
+        with:
+          version: canary
+      - run: bun install
+      - run: bun test
+  
