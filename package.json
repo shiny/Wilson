@@ -2,10 +2,14 @@
   "name": "wilson",
   "type": "module",
   "devDependencies": {
-    "bun-types": "latest"
+    "bun-types": "latest",
+    "handyacme": "latest"
   },
   "peerDependencies": {
     "typescript": "^5.0.0"
   },
-  "workspaces": ["packages/*"]
+  "workspaces": ["packages/*"],
+  "scripts": {
+    "dev": "bun --hot src/bootstrap.ts"
+  }
 }
