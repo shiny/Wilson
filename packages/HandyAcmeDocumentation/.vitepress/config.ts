@@ -21,6 +21,9 @@ export default defineConfig({
         text: 'Get a SSL Certificate',
         items: [
           { text: 'Acme Directory', link: '/directory' },
+          { text: 'Acme Account', link: '/account' },
+          { text: 'Fetch', link: '/fetch' },
+          { text: 'Acme Key', link: '/key' },
           { text: 'Testing', link: '/testing' }
         ]
       }
