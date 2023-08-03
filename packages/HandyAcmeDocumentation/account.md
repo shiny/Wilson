@@ -27,7 +27,7 @@ const hmacKey = '__hmac_from_google_console__'
 
 const directory = await Directory.from('Google', 'staging')
 const account = await Account.useDirectory(directory).
-    withwithEabKey(kid, hmacKey)
+    withEabKey(kid, hmacKey)
     create({
         contact: ['mailto:someone@example.org'],
         termsOfServiceAgreed: true
