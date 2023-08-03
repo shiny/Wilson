@@ -5,10 +5,11 @@
 Example #1: create a LetsEncrypt Staging account
 ```typescript
 const directory = await Directory.from('LetsEncrypt', 'staging')
-const account = await Account.useDirectory(directory).create({
-    contact: ['mailto:someone@example.org'],,
-    termsOfServiceAgreed: true
-})
+const account = await Account.useDirectory(directory)
+    .create({
+        contact: ['mailto:someone@example.org'],
+        termsOfServiceAgreed: true
+    })
 
 // private key in jwk format
 const privateJwk = await account.exportPrivateKey()
@@ -24,9 +25,9 @@ const hmacKey = '__hmac_from_google_console__'
 
 const directory = await Directory.from('Google', 'staging')
 const account = await Account.useDirectory(directory).
-.withwithEabKey(kid, hmacKey)
-create({
-    contact: ['mailto:someone@example.org'],,
-    termsOfServiceAgreed: true
-})
+    withwithEabKey(kid, hmacKey)
+    create({
+        contact: ['mailto:someone@example.org'],
+        termsOfServiceAgreed: true
+    })
 ```
