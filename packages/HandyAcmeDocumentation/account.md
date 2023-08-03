@@ -17,6 +17,8 @@ const privateJwk = await account.exportPrivateKey()
 const publicJwk = await account.exportPublicKey()
 ```
 
+## Google EAB credentials
+
 if external account binding is required like Google/ZeroSSL, you can use `Account.withEabKey(kid, hmacKey)` to specify the EAB credentials.
 
 ```typescript
