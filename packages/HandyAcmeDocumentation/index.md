@@ -12,7 +12,7 @@ hero:
       link: /get-started
     - theme: alt
       text: View Docs
-      link: /api-examples
+      link: /get-started.html
 
 features:
   - title: Written in TypeScript 
