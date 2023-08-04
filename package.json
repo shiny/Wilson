@@ -6,7 +6,7 @@
   },
   "scripts": {
     "dev": "bun --hot run src/index.ts",
-    "typecheck": "bunx tsc --noEmit"
+    "typecheck": "bun x tsc --noEmit"
   },
   "type": "module",
   "workspaces": ["packages/*"]
