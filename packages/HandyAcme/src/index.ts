@@ -14,27 +14,32 @@ import Order from "./Order"
 export {
     Fetch,
     MockCondition,
-    MockConditionCallback,
-    IfMatchFn,
-    FetchFn,
     AcmeFetch,
-    DirectoryResourceType,
     AcmeResponse,
     Key,
     Directory,
     Account,
     Order
 }
+export type {
+    IfMatchFn,
+    FetchFn,
+    DirectoryResourceType,
+    MockConditionCallback,
+}
 export * from  "./Account"
 export * from "./ResultError"
 export default {}
 
-export { default as Provider } from './Datasets/Provider'
-export { default as ResultDirectory } from './Datasets/Result/Directory'
-export { default as Identifier, isIdentifier } from './Datasets/Result/Identifier'
+export type { default as Provider } from './Datasets/Provider'
+export type { default as ResultDirectory } from './Datasets/Result/Directory'
+export type { default as Identifier } from './Datasets/Result/Identifier'
+export { isIdentifier } from './Datasets/Result/Identifier'
 export {
     orderStatues, 
-    default as ResultOrder,
     isFilledArray,
     isResultOrder
+} from './Datasets/Result/Order'
+export type {
+    default as ResultOrder,
 } from './Datasets/Result/Order'
