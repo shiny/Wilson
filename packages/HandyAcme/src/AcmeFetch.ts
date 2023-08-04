@@ -1,19 +1,51 @@
-import Account, { CapsuledRequestBody, CreateAccountOptions, CreateAccountOptionsWithEab } from "./Account";
-import AcmeResponse from "./AcmeResponse";
-import Directory from "./Directory";
-import Fetch from "./Fetch";
+import Account, { JoseBody, CreateAccountOptions, CreateAccountOptionsWithEab } from "./Account"
+import AcmeResponse from "./AcmeResponse"
+import Directory from "./Directory"
+import Fetch from "./Fetch"
+import ResultDirectory from "./types/Result/Directory"
+export type DirectoryResourceType = keyof Omit<ResultDirectory, 'meta'>
+
 
 export default class AcmeFetch extends Fetch {
 
     public requestContentType = 'application/jose+json'
     
-    public directory?: Directory
+    #directory?: Directory
     useDirectory(directory: Directory) {
-        this.directory = directory
+        this.#directory = directory
         return this
     }
     static useDirectory(directory: Directory) {
         return (new AcmeFetch).useDirectory(directory)
+    }
+    get directory() {
+        if (!this.#directory) {
+            throw new Error('Directory has not been set in AcmeFetch')
+        }
+        return this.#directory
+    }
+
+    isResourceType(url: string): url is DirectoryResourceType {
+        return url in this.directory.result
+    }
+
+    /**
+     * Transform resourceTypes to url from directory
+     * @param type url or resourceType e.g. newOrder, newAccount
+     * @return url
+     */
+    transformResourceTypeToUrl(type: DirectoryResourceType): string;
+    transformResourceTypeToUrl(type: string): string;
+    transformResourceTypeToUrl(type: string): string {
+        if (this.isResourceType(type)) {
+            if (this.directory.result[type]) {
+                return this.directory.result[type] as string
+            } else {
+                throw new Error(`AcmeFetch: ${type}'s url is empty`)
+            }
+        } else {
+            return type
+        }
     }
 
     #account?: Account
@@ -58,10 +90,10 @@ export default class AcmeFetch extends Fetch {
         return this.postSignatured(url)
     }
 
-    private async postCapsuledRequestBody(url: string, nonce: string, sinaturedBody: CapsuledRequestBody) {
+    private async postJose(url: string, joseBody: JoseBody) {
         const res = await this.fetch(url, {
             method: "POST",
-            body: JSON.stringify(sinaturedBody),
+            body: JSON.stringify(joseBody),
         })
         const acmeRes = await AcmeResponse.from(res).parse()
         this.cacheNonceFromResponse(acmeRes)
@@ -71,10 +103,13 @@ export default class AcmeFetch extends Fetch {
         return acmeRes
     }
 
-    async postSignatured(url: string, payload: any = '') {
+    postSignatured(url: DirectoryResourceType, payload?: unknown): Promise<AcmeResponse>;
+    postSignatured(url: string, payload?: unknown): Promise<AcmeResponse>;
+    async postSignatured(url: string, payload: any = ''): Promise<AcmeResponse> {
         const nonce = await this.nonce()
+        url = this.transformResourceTypeToUrl(url)
         const sinaturedBody = await this.account.makeRequestBody({ url, nonce }, payload)
-        return this.postCapsuledRequestBody(url, nonce, sinaturedBody)
+        return this.postJose(url, sinaturedBody)
     }
 
     /**
@@ -84,13 +119,12 @@ export default class AcmeFetch extends Fetch {
      * @returns 
      */
     async postSignaturedUsingKey(url: string, payload: CreateAccountOptions | CreateAccountOptionsWithEab) {
-
-        console.log('dokidoki', url, payload)
         const nonce = await this.nonce()
+        url = this.transformResourceTypeToUrl(url)
         const sinaturedBody = await this.account.makeRequestBodyUsingKey({
             nonce,
             url,
         }, payload)
-        return this.postCapsuledRequestBody(url, nonce, sinaturedBody)
+        return this.postJose(url, sinaturedBody)
     }
 }

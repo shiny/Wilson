@@ -9,7 +9,7 @@ type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>
 /**
  * the requested body send to ACME Server
  */
-export interface CapsuledRequestBody {
+export interface JoseBody {
     protected: string
     payload: string
     signature: string
@@ -23,7 +23,7 @@ export interface CreateAccountOptions {
     termsOfServiceAgreed: boolean
 }
 export interface CreateAccountOptionsWithEab extends CreateAccountOptions {
-    externalAccountBinding: CapsuledRequestBody
+    externalAccountBinding: JoseBody
 }
 
 export type RequestProtected = {
@@ -40,14 +40,14 @@ export type RequestProtectedUsingKey = {
     jwk: JsonWebKey
 } & Omit<RequestProtected, 'kid'>
 type CapsuledSignatureFunc = (content: string) => string | Promise<string>
-export async function makeCapsuled(dataProtected: any, payload: unknown, sign: CapsuledSignatureFunc) {
-    const capsuled = {
+export async function capsuleJoseBody(dataProtected: any, payload: unknown, sign: CapsuledSignatureFunc) {
+    const joseBody = {
         protected: JSONStringifyBase64url(dataProtected),
         payload: JSONStringifyBase64url(payload),
         signature: ''
     }
-    capsuled.signature = await Promise.resolve(sign(`${capsuled.protected}.${capsuled.payload}`))
-    return capsuled
+    joseBody.signature = await Promise.resolve(sign(`${joseBody.protected}.${joseBody.payload}`))
+    return joseBody
 }
 
 export function JSONStringifyBase64url(data: any) {
@@ -124,6 +124,16 @@ export default class Account {
         return this.directory.meta.externalAccountRequired === true
     }
 
+    #fetcher?: AcmeFetch
+    get fetcher() {
+        if (!this.#fetcher) {
+            this.#fetcher = AcmeFetch
+                .useDirectory(this.directory)
+                .useAccount(this)
+        }
+        return this.#fetcher
+    }
+
     public lastResponse?: AcmeResponse
 
     /**
@@ -143,9 +153,6 @@ export default class Account {
         if (!this.#key) {
             await this.generateKey()
         }
-        const fetcher = AcmeFetch
-            .useDirectory(this.directory)
-            .useAccount(this)
         if (this.isExternalAccountRequired) {
             const jwk = await this.exportPublicKey()
             const hash: CapsuledSignatureFunc = (content) => {
@@ -154,17 +161,17 @@ export default class Account {
                     this.eabPair.hmacKey
                 ).update(content).digest('base64url')
             }
-            const externalAccountBinding = await makeCapsuled({
+            const externalAccountBinding = await capsuleJoseBody({
                 alg: "HS256",
                 kid: this.eabPair.kid,
                 url: this.directory.newAccount
             }, jwk, (content) => hash(content))
-            this.lastResponse = await fetcher.postSignaturedUsingKey(this.directory.newAccount, {
+            this.lastResponse = await this.fetcher.postSignaturedUsingKey(this.directory.newAccount, {
                 ...options,
                 externalAccountBinding
             })
         } else {
-            this.lastResponse = await fetcher.postSignaturedUsingKey(this.directory.newAccount, options)
+            this.lastResponse = await this.fetcher.postSignaturedUsingKey(this.directory.newAccount, options)
         }
         this.url = this.lastResponse.location
         return this
@@ -184,9 +191,9 @@ export default class Account {
         }, payload)
     }
 
-    makeRequestBody(bodyProtected: Optional<RequestProtectedUsingKey, 'alg'>, payload: CreateAccountOptions): Promise<CapsuledRequestBody>;
-    makeRequestBody(bodyProtected: Optional<RequestProtected, 'alg' | 'kid'>, payload?: unknown): Promise<CapsuledRequestBody>;
-    async makeRequestBody(bodyProtected: Optional<RequestProtectedUsingKey, 'alg'> | Optional<RequestProtected, 'alg' | 'kid'>, payload?: unknown): Promise<CapsuledRequestBody> {
+    makeRequestBody(bodyProtected: Optional<RequestProtectedUsingKey, 'alg'>, payload: CreateAccountOptions): Promise<JoseBody>;
+    makeRequestBody(bodyProtected: Optional<RequestProtected, 'alg' | 'kid'>, payload?: unknown): Promise<JoseBody>;
+    async makeRequestBody(bodyProtected: Optional<RequestProtectedUsingKey, 'alg'> | Optional<RequestProtected, 'alg' | 'kid'>, payload?: unknown): Promise<JoseBody> {
         // Set default alg from #key
         if (!bodyProtected.alg) {
             bodyProtected.alg = this.#key?.algName
@@ -199,7 +206,7 @@ export default class Account {
             }
             bodyProtected.kid = this.url
         }
-        return makeCapsuled(bodyProtected, payload, content => this.sign(content))
+        return capsuleJoseBody(bodyProtected, payload, content => this.sign(content))
     }
 
     static fromResult() {
