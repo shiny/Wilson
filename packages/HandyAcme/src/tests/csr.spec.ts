@@ -53,8 +53,8 @@ const altNames = new GeneralNames({
         value: "*.keqin.dev"
       }),
     ]
-  });
-  //const subjectKeyIdentifier = await crypto.subtle.digest(alg, csr.subjectPublicKeyInfo.subjectPublicKey.valueBlock.valueHexView)
+});
+//const subjectKeyIdentifier = await crypto.subtle.digest(alg, csr.subjectPublicKeyInfo.subjectPublicKey.valueBlock.valueHexView)
 
   const subjectKeyIdentifier =  await crypto.subtle.digest("SHA-256",  csr.subjectPublicKeyInfo.subjectPublicKey.valueBlock.valueHexView)
 csr.attributes = [
@@ -85,7 +85,7 @@ await csr.subjectPublicKeyInfo.importKey(key.privateKey)
 await csr.sign(key.privateKey, 'SHA-256')
 
 
-const result = await csr.toSchema().toBER(false)
+const result = csr.toSchema().toBER(false)
 console.log(`-----BEGIN CERTIFICATE REQUEST-----\n${
     formatPEM(
         Buffer.from(result).toString('base64')
