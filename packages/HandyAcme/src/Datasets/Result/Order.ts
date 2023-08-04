@@ -1,5 +1,5 @@
 import Identifier, { isIdentifier } from "./Identifier"
-const orderStatues = [
+export const orderStatues = [
     "pending", "ready", "processing", "valid", "invalid"
 ] as const
 export type OrderStatus = typeof orderStatues[number]

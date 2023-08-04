@@ -1,6 +1,6 @@
-type FetchFn = (request: Request | string | URL, init?: FetchRequestInit | undefined) => Promise<Response>
-type IfMatchFn = (reg: RegExp | string | MockConditionCallback) => typeof Fetch | Fetch
-type MockConditionCallback = (url: string) => boolean
+export type FetchFn = (request: Request | string | URL, init?: FetchRequestInit | undefined) => Promise<Response>
+export type IfMatchFn = (reg: RegExp | string | MockConditionCallback) => typeof Fetch | Fetch
+export type MockConditionCallback = (url: string) => boolean
 
 /**
  * mock when condition was matched
@@ -11,7 +11,7 @@ type MockConditionCallback = (url: string) => boolean
  * 
  * @param condition 
  */
-class MockCondition {
+export class MockCondition {
     constructor(public condition: string | RegExp | MockConditionCallback) {}
     match(request: Request | string | URL) {
         const url = request instanceof Request ? request.url : request.toString()
