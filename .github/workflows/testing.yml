@@ -16,5 +16,6 @@ jobs:
         with:
           version: canary
       - run: bun install
+      - run: bun run typecheck
       - run: bun test
   

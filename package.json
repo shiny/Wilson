@@ -1,14 +1,13 @@
 {
   "name": "wilson",
-  "type": "module",
   "devDependencies": {
-    "bun-types": "latest"
+    "bun-types": "latest",
+    "typescript": ""
   },
-  "peerDependencies": {
-    "typescript": "^5.0.0"
-  },
-  "workspaces": ["packages/*"],
   "scripts": {
-    "dev": "bun --hot run src/index.ts"
-  }
+    "dev": "bun --hot run src/index.ts",
+    "typecheck": "bunx tsc --noEmit"
+  },
+  "type": "module",
+  "workspaces": ["packages/*"]
 }
