@@ -1,4 +1,4 @@
-import Provider from "../types/Provider"
+import Provider from "../Datasets/Provider"
 const buypass: Provider = {
     name: 'BuyPass',
     productionUrl: "https://api.buypass.com/acme/directory",

@@ -1,4 +1,4 @@
-import ResultDirectory from "./types/Result/Directory"
+import ResultDirectory from "./Datasets/Result/Directory"
 import Fetch from "./Fetch"
 import Providers, { EnvTypes } from "./Provider"
 type SupportedProviders = keyof typeof Providers

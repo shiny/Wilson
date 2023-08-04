@@ -1,4 +1,4 @@
-import Provider from "../types/Provider"
+import Provider from "../Datasets/Provider"
 const letsencrypt: Provider = {
     name: 'LetsEncrypt',
     productionUrl: "https://acme-v02.api.letsencrypt.org/directory",

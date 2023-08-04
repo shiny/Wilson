@@ -1,6 +1,6 @@
 import { test, expect, beforeEach } from 'bun:test'
-import ResultOrder, { isFilledArray, isResultOrder } from '../types/Result/Order'
-import { isIdentifier } from '../types/Result/Identifier'
+import ResultOrder, { isFilledArray, isResultOrder } from '../Datasets/Result/Order'
+import { isIdentifier } from '../Datasets/Result/Identifier'
 
 let example: ResultOrder
 beforeEach(() => {

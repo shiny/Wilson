@@ -2,9 +2,8 @@ import Account, { JoseBody, CreateAccountOptions, CreateAccountOptionsWithEab } 
 import AcmeResponse from "./AcmeResponse"
 import Directory from "./Directory"
 import Fetch from "./Fetch"
-import ResultDirectory from "./types/Result/Directory"
+import ResultDirectory from "./Datasets/Result/Directory"
 export type DirectoryResourceType = keyof Omit<ResultDirectory, 'meta'>
-
 
 export default class AcmeFetch extends Fetch {
 

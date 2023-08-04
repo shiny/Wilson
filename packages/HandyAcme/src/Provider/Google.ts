@@ -1,4 +1,4 @@
-import Provider from "../types/Provider";
+import Provider from "../Datasets/Provider";
 const google: Provider = {
     name: 'Google',
     productionUrl: 'https://dv.acme-v02.api.pki.goog/directory',
