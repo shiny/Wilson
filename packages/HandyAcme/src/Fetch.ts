@@ -124,10 +124,10 @@ export default class Fetch {
         return this
     }
     // Fetch Methods
-    static fetch: FetchFn = async (request, init = {}) => {
+    static fetch: FetchFn = async (request, init: FetchRequestInit = {}) => {
         return this.createInstance().fetch(request, init)
     }
-    fetch: FetchFn = async(request, init = {}) => {
+    fetch: FetchFn = async(request, init: FetchRequestInit = {}) => {
         if (this.shouldMock(request)) {
             if (!this.mockedResponse) {
                 throw new Error('Mock enabled but no response set')
@@ -145,17 +145,17 @@ export default class Fetch {
         return fetch(request, init)
     }
 
-    static async fetchJSON<T>(url: string, init = {}) {
+    static async fetchJSON<T>(url: string, init: FetchRequestInit = {}) {
         return this.createInstance().fetchJSON<T>(url, init)
     }
-    async fetchJSON<T>(url: string, init = {}) {
+    async fetchJSON<T>(url: string, init: FetchRequestInit = {}) {
         const response = await this.fetch(url, init)
         return response.json<T>()
     }
-    static async fetchText(url: string, init = {}) {
+    static async fetchText(url: string, init: FetchRequestInit = {}) {
         return this.createInstance().fetchText(url, init)
     }
-    async fetchText(url: string, init = {}) {
+    async fetchText(url: string, init: FetchRequestInit = {}) {
         const response = await this.fetch(url, init)
         return response.text()
     }
