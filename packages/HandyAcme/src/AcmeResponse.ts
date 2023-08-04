@@ -61,6 +61,10 @@ export default class AcmeResponse {
         return this.response.headers.get('content-type')
     }
 
+    get headers() {
+        return this.response.headers
+    }
+
     get location() {
         const location = this.response.headers.get('location')
         if (!location) {
