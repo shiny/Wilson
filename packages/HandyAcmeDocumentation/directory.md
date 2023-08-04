@@ -2,21 +2,27 @@
 outline: deep
 ---
 
-# Acme Directory
+# Directory
 
-## Directory.fromUrl
-ACME servers provide a directory object to find resources,
-this should be the only URL needed to configure client
-according to [#rfc8555](https://datatracker.ietf.org/doc/html/rfc8555).
+## Fetch to find resources
+ACME server provide a directory object to find resources,
+thus should be the only URL needed to configure client.
+See [#rfc8555](https://datatracker.ietf.org/doc/html/rfc8555) for more information.
 
-HandyAcme would request this object for latest resources url.
+e.g., you can use `await Directory.from('LetsEncrypt', 'staging')` 
+starting use Let's Encrypt staging server. 
+
+You can also call `Directory.fromUrl` for a custom URL.
 ```typescript
-const directoryUrl = 'https://acme-v02.api.letsencrypt.or/directory'
+const directoryUrl = 'https://dv.acme-v02.test-api.pki.goog/directory'
 const directory = await Directory.fromUrl(directoryUrl)
 ```
 
 Here is a typical Directory Object from Google:
 ```typescript
+const directory = await Directory.from('Google', 'staging')
+console.log(directory.result)
+// print result
 {
   newNonce: "https://dv.acme-v02.api.pki.goog/new-nonce",
   newAccount: "https://dv.acme-v02.api.pki.goog/new-account",
@@ -34,9 +40,9 @@ Here is a typical Directory Object from Google:
 }
 ```
 
-## Directory.fromResult
-if you don't want a request since resource urls are permanent link,
-you can also from a cached result.
+## Using a cached result
+if you don't want a request since resource link won't change for a period,
+you can also initialize directory from a cached result.
 ```typescript
 const googleDirectory = {
   newNonce: "https://dv.acme-v02.api.pki.goog/new-nonce",
