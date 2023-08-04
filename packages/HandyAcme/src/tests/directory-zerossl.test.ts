@@ -1,32 +1,21 @@
-import { test, afterEach, expect } from "bun:test"
+import { test, afterEach, expect, beforeEach } from "bun:test"
 import Fetch from "../Fetch"
 import Directory from "../Directory"
-const zerosslDirectory = {
-  newNonce: "https://acme.zerossl.com/v2/DV90/newNonce",
-  newAccount: "https://acme.zerossl.com/v2/DV90/newAccount",
-  newOrder: "https://acme.zerossl.com/v2/DV90/newOrder",
-  revokeCert: "https://acme.zerossl.com/v2/DV90/revokeCert",
-  keyChange: "https://acme.zerossl.com/v2/DV90/keyChange",
-  meta: {
-    termsOfService:
-        "https://secure.trust-provider.com/repository/docs/Legacy/20230516_Certificate_Subscriber_Agreement_v_2_6_click.pdf",
-    website: "https://zerossl.com",
-    caaIdentities: [
-        "sectigo.com",
-        "trust-provider.com",
-        "usertrust.com",
-        "comodoca.com",
-        "comodo.com",
-    ],
-    externalAccountRequired: true,
-  },
-}
+import { zerosslDirectory } from "../Datasets/Result/Directory"
 
+beforeEach(() => {
+  Fetch.mockJsonResponse(zerosslDirectory).ifMatch("https://acme.zerossl.com")
+})
 afterEach(() => Fetch.restoreMock())
-test("Init ZeroSSL Directory", async () => {
-    Fetch.mockJsonResponse(zerosslDirectory).ifMatch("https://acme.zerossl.com")
+
+test("Init ZeroSSL Directory from Url", async () => {
     const dir = await Directory.fromUrl(
         "https://acme.zerossl.com/v2/DV90/directory"
     )
     expect(dir.result).toEqual(zerosslDirectory)
+})
+
+test("Init ZeroSSL Directory from Provider Name", async () => {
+  const dir = await Directory.from('ZeroSSL', 'production')
+  expect(dir.result).toEqual(zerosslDirectory)
 })
