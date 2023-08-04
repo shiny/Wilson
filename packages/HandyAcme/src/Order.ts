@@ -36,6 +36,10 @@ export default class Order {
         return this.#result
     }
 
+    get status() {
+        return this.result.status
+    }
+
     fromResult(result: ResultOrder) {
         this.#result = result
         return this
@@ -75,5 +79,6 @@ export default class Order {
             throw new Error('Malformed order response body')
         }
         this.#url = res.location
+        return this
     }
 }
