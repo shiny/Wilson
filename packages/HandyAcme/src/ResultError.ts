@@ -55,6 +55,8 @@ export default class ResultErrorBase extends Error {
                 throw new ResultErrorUnauthorized(result);
             case 'urn:ietf:params:acme:error:malformed':
                 throw new ResultErrorMalformed(result)
+            case 'urn:ietf:params:acme:error:rejectedIdentifier':
+                throw new ResultErrorRejectedIdentifier(result)
             default:
                 throw new ResultErrorBase(result)
         }
@@ -70,8 +72,11 @@ export class ResultErrorUnauthorized extends ResultErrorBase {
 export class ResultErrorMalformed extends ResultErrorBase {
     type = "urn:ietf:params:acme:error:malformed" as const
 }
+export class ResultErrorRejectedIdentifier extends ResultErrorBase {
+    type = "urn:ietf:params:acme:error:rejectedIdentifier" as const
+}
 
 
 export type PossibleErrorResults = 
     ResultErrorExternalAccountRequired | ResultErrorUnauthorized | ResultErrorBase |
-    ResultErrorMalformed
+    ResultErrorMalformed | ResultErrorRejectedIdentifier
