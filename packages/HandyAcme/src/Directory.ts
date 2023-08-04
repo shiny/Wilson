@@ -1,8 +1,7 @@
 import ResultDirectory from "./types/Result/Directory"
 import Fetch from "./Fetch"
-import Providers from "./Provider"
+import Providers, { EnvTypes } from "./Provider"
 type SupportedProviders = keyof typeof Providers
-import { EnvTypes } from './Provider'
 
 export default class Directory {
 
@@ -14,6 +13,10 @@ export default class Directory {
 
     get newAccount() {
         return this.result.newAccount
+    }
+
+    get newOrder() {
+        return this.result.newOrder
     }
 
     static async from(provider: SupportedProviders, env: EnvTypes) {
