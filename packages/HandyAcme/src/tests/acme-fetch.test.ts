@@ -1,5 +1,5 @@
 import { test, expect, beforeEach } from 'bun:test'
-import { Directory, AcmeFetch, AcmeResponse } from '..'
+import { Directory, AcmeFetch, AcmeResponse, Account } from '..'
 const fakeDirectory = Directory.fake()
 let fetch: AcmeFetch
 
@@ -41,4 +41,44 @@ test('Nonce', () => {
     expect(fetch.nonce()).resolves.toBe('nonce-value-from-cache')
     expect(fetch.nonce()).resolves.toBe('nonce-value-from-mock')
     expect(fetch.nonce()).resolves.toBe('nonce-value-from-mock')
+})
+
+function mockNonce(fetch: AcmeFetch) {
+    fetch.cacheNonceFromResponse(AcmeResponse.from(new Response('', {
+        headers: {
+            'replay-nonce': 'value'
+        }
+    })))
+}
+
+test('postSignaturedUsingKey', async () => {
+    const body = {
+        data: 'test'
+    }
+    fetch.mockJsonResponse(body).ifMatch(fakeDirectory.newAccount)
+    mockNonce(fetch)
+    const account = Account.useDirectory(fakeDirectory)
+    await account.generateKey()
+    fetch.useAccount(account)
+    
+    expect(fetch.postSignaturedUsingKey('newAccount', {
+        contact: ['test'],
+        termsOfServiceAgreed: true
+    })).resolves.toHaveProperty('body', body)
+})
+
+
+test('postSignatured', async () => {
+    const body = {
+        data: 'test'
+    }
+    fetch.mockJsonResponse(body).ifMatch(fakeDirectory.newOrder)
+    mockNonce(fetch)
+    const account = Account.useDirectory(fakeDirectory)
+    await account.generateKey()
+    account.url = 'http://exmaple.com'
+    fetch.useAccount(account)
+    expect(fetch.postSignatured('newOrder', {}))
+        .resolves
+        .toHaveProperty('body', body)
 })
