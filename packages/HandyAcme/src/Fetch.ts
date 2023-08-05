@@ -89,11 +89,19 @@ export default class Fetch {
         return this
     }
     mockJsonResponse = (jsonData: any) => {
-        this.mockResponse(new Response(JSON.stringify(jsonData)))
+        this.mockResponse(new Response(JSON.stringify(jsonData), {
+            headers: {
+                'content-type': 'application/json'
+            }
+        }))
         return this
     }
     static mockJsonResponse(jsonData: any) {
-        this.mockResponse(new Response(JSON.stringify(jsonData)))
+        this.mockResponse(new Response(JSON.stringify(jsonData), {
+            headers: {
+                'content-type': 'application/json'
+            }
+        }))
         return this
     }
     mockTextResponse(text: string) {
