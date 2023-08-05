@@ -7,7 +7,7 @@ import Fetch, {
 import AcmeFetch, { DirectoryResourceType } from "./AcmeFetch"
 import AcmeResponse from "./AcmeResponse"
 import Key from "./Key"
-import Directory from "./Directory"
+import Directory, { FakeDirectory } from "./Directory"
 import Account from "./Account"
 import Order from "./Order"
 
@@ -18,6 +18,7 @@ export {
     AcmeResponse,
     Key,
     Directory,
+    FakeDirectory,
     Account,
     Order
 }

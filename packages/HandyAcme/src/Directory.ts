@@ -1,7 +1,11 @@
 import ResultDirectory from "./Datasets/Result/Directory"
 import Fetch from "./Fetch"
 import Providers, { EnvTypes } from "./Provider"
-type SupportedProviders = keyof typeof Providers
+export type SupportedProviders = keyof typeof Providers
+import {
+    exampleDirectory,
+    exampleStagingDirectory
+} from "./Datasets/Result/Directory"
 
 export default class Directory {
 
@@ -44,6 +48,13 @@ export default class Directory {
         const result = await Fetch.fetchJSON<ResultDirectory>(url)
         return Directory.fromResult(result)
     }
+    static fake(env: EnvTypes = 'production') {
+        if (env === 'production') {
+            return new FakeDirectory(exampleDirectory)
+        } else {
+            return new FakeDirectory(exampleStagingDirectory)
+        }
+    }
 
     get meta() {
         return this.result.meta
@@ -53,3 +64,5 @@ export default class Directory {
         return this.result.meta.externalAccountRequired === true
     }
 }
+
+export class FakeDirectory extends Directory {}

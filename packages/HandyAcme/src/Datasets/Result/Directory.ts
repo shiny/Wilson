@@ -6,7 +6,7 @@ export default interface ResultDirectory {
     revokeCert: string
     meta: {
         website: string
-        caaIdentities: string[]
+        caaIdentities: readonly string[]
         termsOfService: string
         externalAccountRequired?: boolean
     }
@@ -36,7 +36,7 @@ export const buypassDirectory = {
     "keyChange": "https://api.buypass.com/acme-v02/key-change"
 } as const
 
-export const googleDirectory = {
+export const googleDirectory: ResultDirectory = {
     "newNonce": "https://dv.acme-v02.api.pki.goog/new-nonce",
     "newAccount": "https://dv.acme-v02.api.pki.goog/new-account",
     "newOrder": "https://dv.acme-v02.api.pki.goog/new-order",
@@ -50,7 +50,7 @@ export const googleDirectory = {
       "caaIdentities": ["pki.goog"],
       "externalAccountRequired": true
     }
-} as const
+}
 
 export const letsencryptDirectory = {
     "cnFJhQGYgAs": "https://community.letsencrypt.org/t/adding-random-entries-to-the-directory/33417",
@@ -69,7 +69,7 @@ export const letsencryptDirectory = {
     "revokeCert": "https://acme-v02.api.letsencrypt.org/acme/revoke-cert"
 } as const
 
-export const zerosslDirectory = {
+export const zerosslDirectory: ResultDirectory = {
     newNonce: "https://acme.zerossl.com/v2/DV90/newNonce",
     newAccount: "https://acme.zerossl.com/v2/DV90/newAccount",
     newOrder: "https://acme.zerossl.com/v2/DV90/newOrder",
@@ -88,4 +88,38 @@ export const zerosslDirectory = {
         ],
         externalAccountRequired: true,
     },
-} as const
+}
+
+export const exampleDirectory: ResultDirectory = {
+    newNonce: "https://acme.example.com/newNonce",
+    newAccount: "https://acme.example.com/newAccount",
+    newOrder: "https://acme.example.com/newOrder",
+    revokeCert: "https://acme.example.com/revokeCert",
+    keyChange: "https://acme.example.com/keyChange",
+    meta: {
+        termsOfService:
+            "https://secure.example.com/agreement.pdf",
+        website: "https://example.com",
+        caaIdentities: [
+            "example.com",
+        ],
+        externalAccountRequired: true,
+    },
+}
+
+export const exampleStagingDirectory: ResultDirectory = {
+    newNonce: "https://acme-staging.example.com/newNonce",
+    newAccount: "https://acme-staging.example.com/newAccount",
+    newOrder: "https://acme-staging.example.com/newOrder",
+    revokeCert: "https://acme-staging.example.com/revokeCert",
+    keyChange: "https://acme-staging.example.com/keyChange",
+    meta: {
+        termsOfService:
+            "https://secure.example.com/agreement.pdf",
+        website: "https://example.com",
+        caaIdentities: [
+            "example.com",
+        ],
+        externalAccountRequired: true,
+    },
+}
