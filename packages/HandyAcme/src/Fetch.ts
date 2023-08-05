@@ -17,6 +17,8 @@ export class MockCondition {
         const url = request instanceof Request ? request.url : request.toString()
         if (typeof this.condition === 'string') {
             return url.startsWith(this.condition)
+        } else if (this.condition instanceof RegExp) {
+            return this.condition.test(url)
         } else if (typeof this.condition === 'function') {
             return this.condition(url)
         } else {
@@ -64,7 +66,18 @@ export default class Fetch {
     #mockCondition?: MockCondition
 
     shouldMock(request: string | Request | URL) {
-        return this.#mockCondition?.match(request) ?? Fetch.globalMockCondition?.match(request)
+        const haveMockedResponse = this.#mockedResponse || Fetch.globalMockedResponse
+        if (haveMockedResponse) {
+            if (this.#mockCondition) {
+                return this.#mockCondition.match(request)
+            }
+            if (Fetch.globalMockCondition) {
+                return Fetch.globalMockCondition.match(request)
+            }
+            return true
+        } else {
+            return false
+        }
     }
 
     mockResponse(response: Response) {
@@ -101,6 +114,7 @@ export default class Fetch {
     }
     restoreMock() {
         this.#mockedResponse = undefined
+        this.#mockCondition = undefined
     }
     static restoreMock() {
         this.globalMockedResponse = undefined
