@@ -1,6 +1,9 @@
-# Acme Account
+# Account
 
-## Create an Acme account
+## Create an account
+
+An account is required for SSL cert application. 
+You can create the account in the beginning and reuse it after.
 
 Example #1: create a LetsEncrypt Staging account
 ```typescript
