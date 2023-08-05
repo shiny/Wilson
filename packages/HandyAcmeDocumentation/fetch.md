@@ -49,6 +49,8 @@ const { origin: fakeIp } = await fetch.fetchJSON<IpResult>(ipUrl)
 console.log('ip:', trueIp, 'fake ip:', fakeIp)
 ```
 
-## Parse response
+## Request Proxy
 
-- Fetch.fetch
+Fetch support proxy with `Fetch.withProxy('http://120.0.0.0:8080')`.
+This is a [Bun fetch option](https://github.com/oven-sh/bun/issues/1829) still have [bugs](https://github.com/shiny/Wilson/issues/1).
+Still needs more work on it.
