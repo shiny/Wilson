@@ -19,8 +19,15 @@ export interface JoseBody {
  * Options to create an account
  */
 export interface CreateAccountOptions {
-    contact: string[]
-    termsOfServiceAgreed: boolean
+    contact?: string[]
+    termsOfServiceAgreed?: boolean
+    /**
+     *   If the server receives a newAccount request signed with a key for
+     *   which it already has an account registered with the provided account
+     *   key, then it MUST return a response with status code 200 (OK) and
+     *   provide the URL of that account in the Location header field.
+     */
+    onlyReturnExisting?: boolean
 }
 export interface CreateAccountOptionsWithEab extends CreateAccountOptions {
     externalAccountBinding: JoseBody
