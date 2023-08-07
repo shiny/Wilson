@@ -48,16 +48,17 @@ export type RequestProtectedUsingKey = {
 } & Omit<RequestProtected, 'kid'>
 type CapsuledSignatureFunc = (content: string) => string | Promise<string>
 export async function capsuleJoseBody(dataProtected: any, payload: unknown, sign: CapsuledSignatureFunc) {
+    const dataPayload: string = payload === '' ? '' : JSONStringifyBase64url(payload)
     const joseBody = {
         protected: JSONStringifyBase64url(dataProtected),
-        payload: JSONStringifyBase64url(payload),
+        payload: dataPayload,
         signature: ''
     }
     joseBody.signature = await Promise.resolve(sign(`${joseBody.protected}.${joseBody.payload}`))
     return joseBody
 }
 
-export function JSONStringifyBase64url(data: any) {
+export function JSONStringifyBase64url(data: any): string {
     return Buffer.from(JSON.stringify(data)).toString('base64url')
 }
 
