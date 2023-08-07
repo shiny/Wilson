@@ -1,4 +1,5 @@
 import { Account } from "."
+import Authorization from "./Authorization"
 import ResultOrder, { isResultOrder } from "./Datasets/Result/Order"
 
 export default class Order {
@@ -38,6 +39,12 @@ export default class Order {
 
     get status() {
         return this.result.status
+    }
+
+    async getAuthorizations() {
+        return Promise.all(this.result.authorizations.map(url => {
+            return Authorization.useAccount(this.account).fromUrl(url)
+        }))
     }
 
     fromResult(result: ResultOrder) {
