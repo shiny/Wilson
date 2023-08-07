@@ -5,6 +5,7 @@
     "typescript": ""
   },
   "scripts": {
+    "test": "bun test",
     "dev": "bun --hot run src/index.ts",
     "typecheck": "bun x tsc --noEmit"
   },
