@@ -81,6 +81,12 @@ export default class Account {
     }
 
     #key?: Key
+    get key() {
+        if (!this.#key) {
+            throw new Error('Account key havn\'t generated yet')
+        }
+        return this.#key
+    }
     async generateKey() {
         this.#key = await Key.generate('ES256', {
             extractable: true,
@@ -90,17 +96,15 @@ export default class Account {
     }
 
     async exportPrivateKey() {
-        if (!this.#key) {
-            throw new Error('Account key havn\'t generated yet')
-        }
-        return this.#key.exportPrivateJwk()
+        return this.key.exportPrivateJwk()
     }
 
     async exportPublicKey() {
-        if (!this.#key) {
-            throw new Error('Account key havn\'t generated yet')
-        }
-        return this.#key?.exportPublicJwk()
+        return this.key.exportPublicJwk()
+    }
+
+    async exportPublicThumbprint() {
+        return this.key.exportPublicThumbprint()
     }
 
     public url?: string
