@@ -48,6 +48,8 @@ export default class AcmeResponse {
                 return new AcmeJoseJsonResponse(response)
             case 'application/json':
                 return new AcmeJsonResponse(response)
+            case 'application/pem-certificate-chain':
+                return new AcmeTextResponse(response)
             default:
                 return new AcmeResponse(response)
         }
@@ -78,6 +80,16 @@ export default class AcmeResponse {
      */
     toWebResponse() {
         return this.response
+    }
+}
+
+export class AcmeTextResponse extends AcmeResponse {
+    isText(): this is AcmeTextResponse {
+        return true
+    }
+    async parse() {
+        this.body = await this.response.text()
+        return this
     }
 }
 
