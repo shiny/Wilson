@@ -54,8 +54,22 @@ export default class Authorization {
         return this.result.identifier.value
     }
 
+    /**
+     * is it a wildcard ceritifcate?
+     */
     get isWildcard() {
         return this.#result?.wildcard ?? false
+    }
+
+    /**
+     * a challenge dns name
+     * `_acme-challenge.example.org`
+     */
+    get dnsChallengeName() {
+        if (!this.dnsChallenge) {
+            throw new Error('Challenge could not verified by DNS')
+        }
+        return `_acme-challenge.${this.identifierValue}`
     }
 
     /**
