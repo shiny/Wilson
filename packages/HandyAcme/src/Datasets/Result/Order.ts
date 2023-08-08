@@ -9,6 +9,7 @@ export default interface ResultOrder {
     identifiers: Identifier[]
     authorizations: string[]
     finalize: string
+    certificate?: string
 }
 
 /**
