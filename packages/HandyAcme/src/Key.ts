@@ -54,6 +54,10 @@ export default class Key {
 
     }
 
+    exportCryptoKeyPair() {
+        return this.key
+    }
+
     async exportPrivateJwk() {
         return crypto.subtle.exportKey('jwk', this.key.privateKey)
     }
