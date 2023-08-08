@@ -7,7 +7,6 @@ import { sha256 } from "./Key"
 
 export default class Challenge {
 
-
     #account?: Account
     get account() {
         if (!this.#account) {
@@ -42,6 +41,16 @@ export default class Challenge {
         return this
     }
 
+    async fromUrl(url: string) {
+        const acmeRes = await this.account.fetcher.getSignatured(url)
+        this.result = acmeRes.parsedBody
+        return this
+    }
+
+    get url() {
+        return this.result.url
+    }
+
     is(type: ResultChallenge['type']): boolean;
     is(status: ResultChallenge['status']): boolean;
     is(propValue: string): boolean {
@@ -70,5 +79,15 @@ export default class Challenge {
                 `Challenge type ${this.result.type} is not implemented`,
             )
         }
+    }
+
+    /**
+     * Note: You must finish the chanllenge before verify
+     */
+    async verify() {
+        const acmeRes = await this.account.fetcher.postSignatured(this.url)
+        this.#result = acmeRes.parsedBody
+        console.log(acmeRes.parsedBody)
+        return this
     }
 }
