@@ -1,7 +1,6 @@
 import { test, expect } from 'bun:test'
 import Order from '../Order'
 import { Account, Directory } from '..'
-import { Certificate } from '../'
 import CertificateSigningRequest from '../CertificationSigningRequest'
 
 test('Order', async () => {

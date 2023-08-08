@@ -10,7 +10,6 @@ import Key from "./Key"
 import Directory, { FakeDirectory } from "./Directory"
 import Account from "./Account"
 import Order from "./Order"
-import Certificate from "./Certification"
 import Challenge from "./Challenge"
 import CertificateSigningRequest from "./CertificationSigningRequest"
 
@@ -24,7 +23,6 @@ export {
     FakeDirectory,
     Account,
     Order,
-    Certificate,
     Challenge,
     CertificateSigningRequest
 }
