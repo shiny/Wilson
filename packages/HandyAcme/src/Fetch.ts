@@ -1,6 +1,7 @@
 export type FetchFn = (request: Request | string | URL, init?: FetchRequestInit | undefined) => Promise<Response>
 export type IfMatchFn = (reg: RegExp | string | MockConditionCallback) => typeof Fetch | Fetch
 export type MockConditionCallback = (url: string) => boolean
+import merge from "ts-deepmerge"
 
 /**
  * mock when condition was matched
@@ -145,6 +146,17 @@ export default class Fetch {
         this.#proxy = proxy
         return this
     }
+
+    options?: FetchRequestInit
+    withOptions(options: FetchRequestInit) {
+        this.options = options
+        return this
+    }
+    resetOptions() {
+        this.options = undefined
+        return this
+    }
+
     // Fetch Methods
     static fetch: FetchFn = async (request, init: FetchRequestInit = {}) => {
         return this.createInstance().fetch(request, init)
@@ -164,7 +176,7 @@ export default class Fetch {
             headers.set('content-type', this.requestContentType)
             init.headers = headers
         }
-        return fetch(request, init)
+        return fetch(request, merge(init, this.options ?? {}))
     }
 
     static async fetchJSON<T>(url: string, init: FetchRequestInit = {}) {
