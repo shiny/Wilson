@@ -36,6 +36,17 @@ export function sha256(data: BinaryLike, encoding: BufferEncoding = 'base64url')
     .digest()
     .toString(encoding)
 }
+/**
+ * Convert a Private JsonWebKey to Pulic
+ * https://stackoverflow.com/questions/72151096/how-to-derive-public-key-from-private-key-using-webcryptoapi/72153942#72153942
+ * https://stackoverflow.com/questions/56807959/generate-public-key-from-private-key-using-webcrypto-api/57571350#57571350
+ * 
+ * @param key JsonWebKey
+ */
+export function convertToPublicKey(key: JsonWebKey) {
+    const publicJwk: JsonWebKey = { ...key , d: undefined }
+    return publicJwk
+}
 
 export default class Key {
 
@@ -115,5 +126,17 @@ export default class Key {
             }
         })()
         return sha256(JSON.stringify(sortedJwk))
+    }
+
+    static async fromPrivateKey(key: JsonWebKey, alg: SupportedAlg = 'ES256') {
+        const publicJwk = convertToPublicKey(key)
+        const params: EcKeyImportParams | RsaHashedImportParams = algParams[alg].genParams
+        const extractable = true
+        const privateKey: CryptoKey = await crypto.subtle.importKey('jwk', key, params, extractable, ['sign'])
+        const publicKey: CryptoKey = await crypto.subtle.importKey('jwk', publicJwk, params, extractable, [])
+        return new Key(alg, {
+            privateKey,
+            publicKey
+        })
     }
 }

@@ -221,7 +221,9 @@ export default class Account {
         return capsuleJoseBody(bodyProtected, payload, content => this.sign(content))
     }
 
-    static fromResult() {
-
+    async from({ key, url }: { key: JsonWebKey, url: string}) {
+        this.#key = await Key.fromPrivateKey(key, 'ES256')
+        this.url = url
+        return this
     }
 }
