@@ -57,7 +57,7 @@ export default class Order {
      */
     async fromUrl(url: string) {
         this.#url = url
-        const acmeRes = await this.account.fetcher.postSignatured(url)
+        const acmeRes = await this.account.fetcher.getSignatured(url)
         if (isResultOrder(acmeRes.parsedBody)) {
             this.#result = acmeRes.parsedBody
             return this

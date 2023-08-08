@@ -86,7 +86,7 @@ export default class AcmeFetch extends Fetch {
     }
 
     async getSignatured(url: string) {
-        return this.postSignatured(url)
+        return this.postSignatured(url, '')
     }
 
     private async postJose(url: string, joseBody: JoseBody) {
@@ -104,7 +104,7 @@ export default class AcmeFetch extends Fetch {
 
     postSignatured(url: DirectoryResourceType, payload?: unknown): Promise<AcmeResponse>;
     postSignatured(url: string, payload?: unknown): Promise<AcmeResponse>;
-    async postSignatured(url: string, payload: any = ''): Promise<AcmeResponse> {
+    async postSignatured(url: string, payload: any = {}): Promise<AcmeResponse> {
         const nonce = await this.nonce()
         url = this.transformResourceTypeToUrl(url)
         const sinaturedBody = await this.account.makeRequestBody({ url, nonce }, payload)
