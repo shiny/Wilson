@@ -41,7 +41,7 @@ await account.create({
 console.log('Account url is ', account.url)
 ```
 
-## initializing a existed account
+## Initializing a existed account
 
 Two params are required: private JsonWebKey and account's url
 
