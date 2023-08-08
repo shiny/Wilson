@@ -41,7 +41,7 @@ export default class Order {
         return this.result.status
     }
 
-    async getAuthorizations() {
+    async fetchAuthorizations() {
         return Promise.all(this.result.authorizations.map(url => {
             return Authorization.useAccount(this.account).fromUrl(url)
         }))
