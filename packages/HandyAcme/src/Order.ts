@@ -73,8 +73,7 @@ export default class Order {
         }
         return this.account.fetcher.withOptions({
             headers: {
-                'accept': 'application/pem-certificate-chain',
-                'content-type': 'application/jose+json'
+                'accept': 'application/pem-certificate-chain'
             }
         }).getSignatured(this.certificateUrl)
     }

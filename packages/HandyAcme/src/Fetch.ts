@@ -174,7 +174,7 @@ export default class Fetch {
         if (this.requestContentType) {
             const headers = new Headers(init.headers)
             headers.set('content-type', this.requestContentType)
-            init.headers = headers
+            init.headers = Object.fromEntries(headers)
         }
         return fetch(request, merge(init, this.options ?? {}))
     }
