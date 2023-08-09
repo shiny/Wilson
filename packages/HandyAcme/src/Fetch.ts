@@ -195,6 +195,6 @@ export default class Fetch {
     }
 
     static createInstance() {
-        return new Fetch
+        return new this
     }
 }

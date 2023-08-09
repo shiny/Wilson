@@ -1,5 +1,5 @@
 import { test, expect, afterEach } from 'bun:test'
-import { Fetch } from '..'
+import { AcmeFetch, Fetch, FetchFn } from '..'
 
 afterEach(() => {
 //    Fetch.restoreMock()
@@ -16,8 +16,10 @@ test('Fetch Mock', async () => {
 })
 
 test('Fetch Instance', async () => {
-    const fetch = Fetch.createInstance()
-    expect(fetch).toBeInstanceOf(Fetch)
+    expect(Fetch.createInstance())
+        .toBeInstanceOf(Fetch)
+    expect(AcmeFetch.createInstance())
+        .toBeInstanceOf(AcmeFetch)
 })
 
 test('Fetch Text', async () => {
