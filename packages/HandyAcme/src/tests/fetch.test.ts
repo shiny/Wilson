@@ -1,4 +1,4 @@
-import { test, expect, afterEach } from 'bun:test'
+import { test, expect, afterEach, mock } from 'bun:test'
 import { AcmeFetch, Fetch, FetchFn } from '..'
 
 afterEach(() => {
@@ -63,4 +63,29 @@ test('Fetch mock match: RegEx', () => {
 test('Fetch mock match: Callback', () => {
     Fetch.ifMatch((url: string) => url.indexOf('example.com') > -1)
     mockTesting()
+})
+
+test('Fetch withOptions', async () => {
+    const fetch = AcmeFetch.createInstance().withOptions({
+        headers: {
+            'accept': 'application/pem-certificate-chain'
+        }
+    })
+    const originalFetch = global.fetch
+    const exampleUrl = 'https://example.com'
+
+    // as toHaveBeenCalledWith has not been implemented
+    // this is a replacement below
+    global.fetch = mock<FetchFn>(async (url, init) => {
+        expect(url).toBe(exampleUrl)
+        expect(init?.headers)
+            .toHaveProperty('content-type', fetch.requestContentType)
+        return new Response('')
+    })
+    await fetch.fetch(exampleUrl, {
+        headers: { 'accept-language': 'en_US' }
+    })
+    await fetch.fetch(exampleUrl, { verbose: true })
+    expect(global.fetch).toHaveBeenCalledTimes(2)
+    global.fetch = originalFetch
 })
