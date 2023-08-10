@@ -108,6 +108,13 @@ class AcmeJsonResponseBase extends AcmeResponse {
         this.body = await this.response.json<T>()
         return this
     }
+    static fromJson(jsonData: unknown) {
+        return new this(new Response(JSON.stringify(jsonData), {
+            headers: {
+                'content-type': 'application/json'
+            }
+        }))
+    }
 }
 
 export class AcmeJsonResponse extends AcmeJsonResponseBase {
