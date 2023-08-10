@@ -61,6 +61,24 @@ export default class Order {
         return this.result.status
     }
 
+    should(action: 'wait' | 'verify' | 'finalize' | 'download') {
+        if(!this.#result) {
+            return false
+        }
+        switch(action) {
+            case 'verify':
+                return this.status === 'pending'
+            case 'finalize':
+                return this.status === 'ready'
+            case 'download':
+                return this.status === 'valid'
+            case 'wait':
+                return this.status === 'processing'
+            default:
+                return false
+        }
+    }
+
     async fetchAuthorizations() {
         return Promise.all(this.result.authorizations.map(url => {
             return Authorization.useAccount(this.account).fromUrl(url)
