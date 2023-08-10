@@ -15,6 +15,11 @@ export interface JoseBody {
     signature: string
 }
 
+export interface EabKeyOption {
+    kid: string
+    hmacKey: string
+}
+
 /**
  * Options to create an account
  */
@@ -117,9 +122,19 @@ export default class Account {
      * @param hmacKey 
      * @returns 
      */
-    withEabKey(kid: string, hmacKey: string) {
-        this.kid = kid
-        this.hmacKey = Buffer.from(hmacKey, 'base64')
+    withEabKey(kid: string, hmacKey: string): this;
+    withEabKey(key: EabKeyOption): this;
+    withEabKey(key: string | EabKeyOption, hmacKey?: string): this {
+        if (typeof key === 'string') {
+            if (!hmacKey) {
+                throw new Error('hmacKey is required')
+            }
+            this.kid = key
+            this.hmacKey = Buffer.from(hmacKey, 'base64')
+        } else {
+            this.kid = key.kid
+            this.hmacKey = Buffer.from(key.hmacKey, 'base64')
+        }
         return this
     }
     get eabPair() {

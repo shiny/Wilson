@@ -14,6 +14,21 @@ test('capsuleJoseBody', () => {
     })
 })
 
+test('withEabKey', () => {
+    const account = Account.useDirectory(Directory.fake())
+    
+    account.withEabKey('kid', 'hmacKey')
+    expect(account.eabPair.kid).toBe('kid')
+    expect(account.eabPair.hmacKey).toEqual(Buffer.from('hmacKey', 'base64'))
+
+    account.withEabKey({
+        kid: 'kid2',
+        hmacKey: 'hmacKey2'
+    })
+    expect(account.eabPair.kid).toBe('kid2')
+    expect(account.eabPair.hmacKey).toEqual(Buffer.from('hmacKey2', 'base64'))
+})
+
 test('makeRequestBody', async () => {
     const fakeDirectory = Directory.fake()
     const account = Account.useDirectory(fakeDirectory)

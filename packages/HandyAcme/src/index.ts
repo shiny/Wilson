@@ -8,7 +8,7 @@ import AcmeFetch, { DirectoryResourceType } from "./AcmeFetch"
 import AcmeResponse from "./AcmeResponse"
 import Key from "./Key"
 import Directory, { FakeDirectory } from "./Directory"
-import Account from "./Account"
+import Account, { EabKeyOption } from "./Account"
 import Order from "./Order"
 import Challenge from "./Challenge"
 import CertificateSigningRequest from "./CertificationSigningRequest"
@@ -31,6 +31,7 @@ export type {
     FetchFn,
     DirectoryResourceType,
     MockConditionCallback,
+    EabKeyOption,
 }
 export * from  "./Account"
 export * from "./ResultError"
