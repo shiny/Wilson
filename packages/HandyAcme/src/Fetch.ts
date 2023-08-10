@@ -1,10 +1,10 @@
 export type FetchFn = (request: Request | string | URL, init?: FetchRequestInit | undefined) => Promise<Response>
-export type IfMatchFn = (reg: RegExp | string | MockConditionCallback) => typeof Fetch | Fetch
-export type MockConditionCallback = (url: string) => boolean
+export type IfMatchFn = (reg: RegExp | string | ReturnConditionCallback) => typeof Fetch | Fetch
+export type ReturnConditionCallback = (url: string) => boolean
 import merge from "ts-deepmerge"
 
 /**
- * mock when condition was matched
+ * return when condition was matched
  * 
  * when condition is a string matchs url startsWith condition
  * when condition is a RegExp matchs url
@@ -12,8 +12,8 @@ import merge from "ts-deepmerge"
  * 
  * @param condition 
  */
-export class MockCondition {
-    constructor(public condition: string | RegExp | MockConditionCallback) {}
+export class ReturnCondition {
+    constructor(public condition: string | RegExp | ReturnConditionCallback) {}
     match(request: Request | string | URL) {
         const url = request instanceof Request ? request.url : request.toString()
         if (typeof this.condition === 'string') {
@@ -33,7 +33,7 @@ export class MockCondition {
  * @example
  * ```typescript
  * const result = await Fetch
- *      .mockJsonResponse({ status: 'ok' })
+ *      .returnJson({ status: 'ok' })
  *      .ifMatch('https://dummyjson.com')
  *      .fetch('https://dummyjson.com/products')
  * // result is { status: 'ok' }
@@ -46,34 +46,33 @@ export default class Fetch {
 
     // Mock Settings
 
-    #mockedResponse?: Response
-    private static globalMockedResponse?: Response
+    #returnedResponse?: Response
+    private static globalReturnedResponse?: Response
 
-    get mockedResponse() {
-        if (this.#mockedResponse) {
-            return this.#mockedResponse
+    get returnedResponse() {
+        if (this.#returnedResponse) {
+            return this.#returnedResponse
         }
-        if (Fetch.globalMockedResponse) {
-            return Fetch.globalMockedResponse
+        if (Fetch.globalReturnedResponse) {
+            return Fetch.globalReturnedResponse
         }
         return null
     }
 
-    static get mockedResponse() {
-        return this.globalMockedResponse
+    static get returnedResponse() {
+        return this.globalReturnedResponse
     }
 
-    static globalMockCondition?: MockCondition
-    #mockCondition?: MockCondition
+    static globalReturnCondition?: ReturnCondition
+    #returnCondition?: ReturnCondition
 
-    shouldMock(request: string | Request | URL) {
-        const haveMockedResponse = this.#mockedResponse || Fetch.globalMockedResponse
-        if (haveMockedResponse) {
-            if (this.#mockCondition) {
-                return this.#mockCondition.match(request)
+    shouldReturn(request: string | Request | URL) {
+        if (this.returnedResponse) {
+            if (this.#returnCondition) {
+                return this.#returnCondition.match(request)
             }
-            if (Fetch.globalMockCondition) {
-                return Fetch.globalMockCondition.match(request)
+            if (Fetch.globalReturnCondition) {
+                return Fetch.globalReturnCondition.match(request)
             }
             return true
         } else {
@@ -81,53 +80,53 @@ export default class Fetch {
         }
     }
 
-    mockResponse(response: Response) {
-        this.#mockedResponse = response
+    returnResponse(response: Response) {
+        this.#returnedResponse = response
         return this
     }
-    static mockResponse(response: Response) {
-        this.globalMockedResponse = response
+    static returnResponse(response: Response) {
+        this.globalReturnedResponse = response
         return this
     }
-    mockJsonResponse = (jsonData: any) => {
-        this.mockResponse(new Response(JSON.stringify(jsonData), {
+    returnJson = (jsonData: any) => {
+        this.returnResponse(new Response(JSON.stringify(jsonData), {
             headers: {
                 'content-type': 'application/json'
             }
         }))
         return this
     }
-    static mockJsonResponse(jsonData: any) {
-        this.mockResponse(new Response(JSON.stringify(jsonData), {
+    static returnJson(jsonData: any) {
+        this.returnResponse(new Response(JSON.stringify(jsonData), {
             headers: {
                 'content-type': 'application/json'
             }
         }))
         return this
     }
-    mockTextResponse(text: string) {
-        this.mockResponse.call(this, new Response(text))
+    returnText(text: string) {
+        this.returnResponse.call(this, new Response(text))
         return this
     }
-    static mockTextResponse(text: string) {
-        this.mockResponse(new Response(text))
+    static returnText(text: string) {
+        this.returnResponse(new Response(text))
         return this
     }
     static ifMatch: IfMatchFn = (reg) => {
-        this.globalMockCondition = new MockCondition(reg)
+        this.globalReturnCondition = new ReturnCondition(reg)
         return this
     }
     ifMatch: IfMatchFn = (reg) => {
-        this.#mockCondition = new MockCondition(reg)
+        this.#returnCondition = new ReturnCondition(reg)
         return this
     }
     restoreMock() {
-        this.#mockedResponse = undefined
-        this.#mockCondition = undefined
+        this.#returnedResponse = undefined
+        this.#returnCondition = undefined
     }
     static restoreMock() {
-        this.globalMockedResponse = undefined
-        this.globalMockCondition = undefined
+        this.globalReturnedResponse = undefined
+        this.globalReturnCondition = undefined
     }
 
     // Proxy Settings
@@ -162,11 +161,11 @@ export default class Fetch {
         return this.createInstance().fetch(request, init)
     }
     fetch: FetchFn = async(request, init: FetchRequestInit = {}) => {
-        if (this.shouldMock(request)) {
-            if (!this.mockedResponse) {
+        if (this.shouldReturn(request)) {
+            if (!this.returnedResponse) {
                 throw new Error('Mock enabled but no response set')
             }
-            return this.mockedResponse
+            return this.returnedResponse
         }
         if (this.proxy && !init.proxy) {
             init.proxy = this.proxy

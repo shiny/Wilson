@@ -1,6 +1,6 @@
 import Fetch, {
-    MockCondition,
-    MockConditionCallback,
+    ReturnCondition,
+    ReturnConditionCallback,
     IfMatchFn,
     FetchFn
 } from "./Fetch"
@@ -15,7 +15,7 @@ import CertificateSigningRequest from "./CertificationSigningRequest"
 
 export {
     Fetch,
-    MockCondition,
+    ReturnCondition,
     AcmeFetch,
     AcmeResponse,
     Key,
@@ -30,7 +30,7 @@ export type {
     IfMatchFn,
     FetchFn,
     DirectoryResourceType,
-    MockConditionCallback,
+    ReturnConditionCallback,
     EabKeyOption,
 }
 export * from  "./Account"

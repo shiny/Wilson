@@ -15,7 +15,7 @@ const res = await Fetch.fetch('https://ip.time2.cc/')
 await res.text()
 ```
 
-## Match and mock response
+## Match and return response directly
 Mock is quite usefull for testing. Fetch could mock the response result you want.
 Three type of matching conditions are accept:
 
@@ -24,7 +24,7 @@ Three type of matching conditions are accept:
 - callback: `(url: string) => boolean` return `true` to match
 
 ```typescript
-Fetch.mockJsonResponse({ status: 'ok' }).ifMatch('http://example.com')
+Fetch.returnJson({ status: 'ok' }).ifMatch('http://example.com')
 
 const mockedText = await Fetch.fetchText('http://example.com')
 const originalText = await Fetch.fetchText('http://example.org')
@@ -42,7 +42,7 @@ interface IpResult {
 const ipUrl = 'http://httpbun.com/ip'
 
 const fetch = Fetch.createInstance()
-fetch.mockJsonResponse({ origin: '0.0.0.0'}).ifMatch(ipUrl)
+fetch.returnJson({ origin: '0.0.0.0'}).ifMatch(ipUrl)
 
 const { origin: trueIp } = await Fetch.fetchJSON<IpResult>(ipUrl)
 const { origin: fakeIp } = await fetch.fetchJSON<IpResult>(ipUrl)

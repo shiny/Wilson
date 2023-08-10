@@ -4,7 +4,7 @@ import Directory from "../Directory"
 import { zerosslDirectory } from "../Datasets/Result/Directory"
 
 beforeEach(() => {
-  Fetch.mockJsonResponse(zerosslDirectory).ifMatch("https://acme.zerossl.com")
+  Fetch.returnJson(zerosslDirectory).ifMatch("https://acme.zerossl.com")
 })
 afterEach(() => Fetch.restoreMock())
 

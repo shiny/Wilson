@@ -31,7 +31,7 @@ test('Directory.fromResult', () => {
 
 test('Directory.fromUrl', async () => {
     // mock from the cached result
-    Fetch.ifMatch(/zerossl/).mockJsonResponse(directoryResult)
+    Fetch.ifMatch(/zerossl/).returnJson(directoryResult)
     const directory = await Directory.fromUrl('https://acme.zerossl.com/v2/DV90/directory')
     testDirectory(directory)
 })

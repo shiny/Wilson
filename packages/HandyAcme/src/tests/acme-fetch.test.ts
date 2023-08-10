@@ -32,7 +32,7 @@ test('Nonce', () => {
             'Replay-Nonce': 'nonce-value-from-cache'
         }
     }))
-    fetch.mockResponse(new Response(JSON.stringify({}), {
+    fetch.returnResponse(new Response(JSON.stringify({}), {
         headers: {
             'Replay-Nonce': 'nonce-value-from-mock'
         }
@@ -55,7 +55,7 @@ test('postSignaturedUsingKey', async () => {
     const body = {
         data: 'test'
     }
-    fetch.mockJsonResponse(body).ifMatch(fakeDirectory.newAccount)
+    fetch.returnJson(body).ifMatch(fakeDirectory.newAccount)
     mockNonce(fetch)
     const account = Account.useDirectory(fakeDirectory)
     await account.generateKey()
@@ -72,7 +72,7 @@ test('postSignatured', async () => {
     const body = {
         data: 'test'
     }
-    fetch.mockJsonResponse(body).ifMatch(fakeDirectory.newOrder)
+    fetch.returnJson(body).ifMatch(fakeDirectory.newOrder)
     mockNonce(fetch)
     const account = Account.useDirectory(fakeDirectory)
     await account.generateKey()

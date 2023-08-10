@@ -7,10 +7,10 @@ afterEach(() => {
 
 test('Fetch Mock', async () => {
     const responseBody = 'works'
-    Fetch.mockTextResponse(responseBody)
-    const mockedResponse = await Fetch.fetch('http://example.com')
-    const mockedText = await mockedResponse.text()
-    expect(mockedText).toBe(responseBody)
+    Fetch.returnText(responseBody)
+    const response = await Fetch.fetch('http://example.com')
+    const text = await response.text()
+    expect(text).toBe(responseBody)
     // request to exaple.com would take hundred milliseconds
     // so we don't test it for the moment
 })
@@ -24,28 +24,28 @@ test('Fetch Instance', async () => {
 
 test('Fetch Text', async () => {
     const mockedText = 'ok'
-    const fetch = Fetch.createInstance().mockTextResponse(mockedText)
+    const fetch = Fetch.createInstance().returnText(mockedText)
     const responseText = await fetch.fetchText('http://example.com')
     expect(responseText).toBe(mockedText)
 })
 
 test('Fetch JSON', async () => {
     const jsonObject = { status: 'ok' }
-    const responseJson = await Fetch.mockJsonResponse(jsonObject)
+    const responseJson = await Fetch.returnJson(jsonObject)
         .fetchJSON('http://example.com')
     expect(responseJson).toEqual(jsonObject)
 })
 
 const mockTesting = () => {
     // mock response is paired with ifMatch
-    Fetch.mockTextResponse('')
+    Fetch.returnText('')
     expect(
         Fetch.createInstance()
-        .shouldMock('http://example.com/robots.txt')
+        .shouldReturn('http://example.com/robots.txt')
     ).toBeTrue()
     expect(
         Fetch.createInstance()
-        .shouldMock('http://example.org/robots.txt')
+        .shouldReturn('http://example.org/robots.txt')
     ).toBeFalse()
     Fetch.restoreMock()
 }
