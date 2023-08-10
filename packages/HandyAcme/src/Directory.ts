@@ -1,8 +1,7 @@
-import ResultDirectory from "./Datasets/Result/Directory"
 import Fetch from "./Fetch"
 import Providers, { EnvTypes } from "./Provider"
 export type SupportedProviders = keyof typeof Providers
-import {
+import ResultDirectory, {
     exampleDirectory,
     exampleStagingDirectory
 } from "./Datasets/Result/Directory"
