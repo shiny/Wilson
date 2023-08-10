@@ -1,11 +1,12 @@
 import { test, expect, afterEach, mock } from 'bun:test'
 import { AcmeFetch, Fetch, FetchFn } from '..'
+import { FakeRouter } from '../Fetch'
 
 afterEach(() => {
-//    Fetch.restoreMock()
+    Fetch.restoreMock()
 })
 
-test('Fetch Mock', async () => {
+test('Mock', async () => {
     const responseBody = 'works'
     Fetch.returnText(responseBody)
     const response = await Fetch.fetch('http://example.com')
@@ -15,21 +16,21 @@ test('Fetch Mock', async () => {
     // so we don't test it for the moment
 })
 
-test('Fetch Instance', async () => {
+test('Instance', async () => {
     expect(Fetch.createInstance())
         .toBeInstanceOf(Fetch)
     expect(AcmeFetch.createInstance())
         .toBeInstanceOf(AcmeFetch)
 })
 
-test('Fetch Text', async () => {
+test('Text', async () => {
     const mockedText = 'ok'
     const fetch = Fetch.createInstance().returnText(mockedText)
     const responseText = await fetch.fetchText('http://example.com')
     expect(responseText).toBe(mockedText)
 })
 
-test('Fetch JSON', async () => {
+test('JSON', async () => {
     const jsonObject = { status: 'ok' }
     const responseJson = await Fetch.returnJson(jsonObject)
         .fetchJSON('http://example.com')
@@ -50,22 +51,40 @@ const mockTesting = () => {
     Fetch.restoreMock()
 }
 
-test('Fetch mock match: String', () => {
+test('Mocking match: String', () => {
     Fetch.ifMatch('http://example.com')
     mockTesting()
 })
 
-test('Fetch mock match: RegEx', () => {
+test('Mocking match: RegEx', () => {
     Fetch.ifMatch(/example\.com/)
     mockTesting()
 })
 
-test('Fetch mock match: Callback', () => {
+test('Mocking match: Callback', () => {
     Fetch.ifMatch((url: string) => url.indexOf('example.com') > -1)
     mockTesting()
 })
 
-test('Fetch withOptions', async () => {
+test('Mocking match router', async () => {
+    const router1: FakeRouter = {
+        path: '/1',
+        fetch: () => new Response('ok-1')
+    }
+    const router2: FakeRouter = {
+        path: '/2',
+        fetch: new Response('ok-2')
+    }
+    const fetcher = Fetch.withFaked([
+        router1, router2
+    ])
+    const text1 = await fetcher.fetchText('https://example.com/1')
+    const text2 = await fetcher.fetchText('https://example.com/2')
+    expect(text1).toBe('ok-1')
+    expect(text2).toBe('ok-2')
+})
+
+test('withOptions', async () => {
     const fetch = AcmeFetch.createInstance().withOptions({
         headers: {
             'accept': 'application/pem-certificate-chain'

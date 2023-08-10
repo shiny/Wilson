@@ -1,8 +1,15 @@
 export type FetchFn = (request: Request | string | URL, init?: FetchRequestInit | undefined) => Promise<Response>
+export type SyncFetchFn = (request: Request | string | URL, init?: FetchRequestInit | undefined) => Response
+
 export type IfMatchFn = (reg: RegExp | string | ReturnConditionCallback) => typeof Fetch | Fetch
 export type ReturnConditionCallback = (url: string) => boolean
 import merge from "ts-deepmerge"
 
+export interface FakeRouter {
+    path: string | RegExp
+    domain?: string
+    fetch: FetchFn | SyncFetchFn | Response | Promise<Response>
+}
 /**
  * return when condition was matched
  * 
@@ -28,6 +35,19 @@ export class ReturnCondition {
     }
 }
 
+export function isRouterMatched(router: FakeRouter, url: URL) {
+    if (router.domain && url.hostname !== router.domain) {
+        return false
+    }
+    if (typeof router.path === 'string') {
+        return router.path === url.pathname
+    }
+    if (router.path instanceof RegExp) {
+        return router.path.test(url.pathname)
+    }
+    return false
+}
+
 /**
  * a Fetch wraper
  * @example
@@ -41,7 +61,6 @@ export class ReturnCondition {
  * ```
  */
 export default class Fetch {
-
     public requestContentType?: string 
 
     // Mock Settings
@@ -49,12 +68,16 @@ export default class Fetch {
     #returnedResponse?: Response
     private static globalReturnedResponse?: Response
 
+    get staticSelf() {
+        return this.constructor as typeof Fetch
+    }
+
     get returnedResponse() {
         if (this.#returnedResponse) {
             return this.#returnedResponse
         }
-        if (Fetch.globalReturnedResponse) {
-            return Fetch.globalReturnedResponse
+        if (this.staticSelf.globalReturnedResponse) {
+            return this.staticSelf.globalReturnedResponse
         }
         return null
     }
@@ -71,8 +94,8 @@ export default class Fetch {
             if (this.#returnCondition) {
                 return this.#returnCondition.match(request)
             }
-            if (Fetch.globalReturnCondition) {
-                return Fetch.globalReturnCondition.match(request)
+            if (this.staticSelf.globalReturnCondition) {
+                return this.staticSelf.globalReturnCondition.match(request)
             }
             return true
         } else {
@@ -120,13 +143,55 @@ export default class Fetch {
         this.#returnCondition = new ReturnCondition(reg)
         return this
     }
+
+    public static globalFakedRouters: FakeRouter[] = []
+    #fakedRouters: FakeRouter[] = []
+
+    static withFaked(router: FakeRouter): typeof this;
+    static withFaked(routers: FakeRouter[]): typeof this;
+    static withFaked(router: FakeRouter | FakeRouter[]) {
+        if (Array.isArray(router)) {
+            this.globalFakedRouters = router
+        } else {
+            this.globalFakedRouters = [ router ]
+        }
+        return this
+    }
+    withFaked(router: FakeRouter): this;
+    withFaked(routers: FakeRouter[]): this;
+    withFaked(router: FakeRouter | FakeRouter[]): this {
+        if (Array.isArray(router)) {
+            this.#fakedRouters = router
+        } else {
+            this.#fakedRouters = [ router ]
+        }
+        return this
+    }
+
+    matchRouter(request: string | Request | URL) {
+        const url = new URL(request instanceof Request ? request.url : request)
+        const findFromRouters = (routers: FakeRouter[]) => {
+            return routers.find(router => isRouterMatched(router, url))
+        }
+        const localRouterFound = findFromRouters(this.#fakedRouters)
+        if (localRouterFound) {
+            return localRouterFound
+        }
+        const globalRouterFound = findFromRouters(this.staticSelf.globalFakedRouters)
+        if (globalRouterFound) {
+            return globalRouterFound
+        }
+    }
+
     restoreMock() {
         this.#returnedResponse = undefined
         this.#returnCondition = undefined
+        this.#fakedRouters = []
     }
     static restoreMock() {
         this.globalReturnedResponse = undefined
         this.globalReturnCondition = undefined
+        this.globalFakedRouters = []
     }
 
     // Proxy Settings
@@ -135,7 +200,7 @@ export default class Fetch {
     #proxy?: string
     
     get proxy() {
-        return this.#proxy ?? Fetch.globalProxy
+        return this.#proxy ?? this.staticSelf.globalProxy
     }
     static withProxy(proxy: string) {
         this.globalProxy = proxy
@@ -175,7 +240,19 @@ export default class Fetch {
             headers.set('content-type', this.requestContentType)
             init.headers = Object.fromEntries(headers)
         }
-        return fetch(request, merge(init, this.options ?? {}))
+        const router = this.matchRouter(request)
+        const options = merge(init, this.options ?? {})
+        if (router) {
+            if (router.fetch instanceof Response) {
+                return router.fetch
+            } else if (router.fetch instanceof Promise) {
+                return router.fetch
+            } else {
+                return router.fetch(request, options)
+            }
+        } else {
+            return fetch(request, options)
+        }
     }
 
     static async fetchJSON<T>(url: string, init: FetchRequestInit = {}) {

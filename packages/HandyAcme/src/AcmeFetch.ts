@@ -9,6 +9,10 @@ export default class AcmeFetch extends Fetch {
 
     public requestContentType = 'application/jose+json'
     
+    get staticSelf() {
+        return this.constructor as typeof AcmeFetch
+    }
+
     #directory?: Directory
     useDirectory(directory: Directory) {
         this.#directory = directory
