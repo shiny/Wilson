@@ -28,4 +28,5 @@
         "skipLibCheck": true,
         "composite": true,
     },
+    "exclude": ["./packages/ui"]
 }
