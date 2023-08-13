@@ -6,7 +6,7 @@
     "compilerOptions": {
         "baseUrl": "./src",
         // add Bun type definitions
-        "types": ["bun-types"],
+        "types": ["bun-types", "@tealight.uk/Soda"],
     
         "lib": ["ESNext"],
         "module": "ESNext",

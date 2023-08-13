@@ -10,7 +10,7 @@
     "typecheck": "bun x tsc --noEmit"
   },
   "type": "module",
-  "workspaces": ["packages/*"],
+  "workspaces": ["packages/*", "packages/@tealight.uk/*"],
   "dependencies": {
     "@prisma/client": "5.1.1",
     "prisma": "^5.1.1"
