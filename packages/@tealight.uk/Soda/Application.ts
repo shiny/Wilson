@@ -1,7 +1,7 @@
 import { join, dirname } from "path"
 import { FileSystemRouter, Serve, peek } from "bun"
-import SodaRequest from "SodaRequest"
-import SodaResponse from "SodaResponse"
+import SodaRequest from "./SodaRequest"
+import SodaResponse from "./SodaResponse"
 import HttpNotFound from "./Response/HttpNotFound"
 
 export default class Application {
