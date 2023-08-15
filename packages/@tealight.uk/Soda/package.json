@@ -1,12 +1,16 @@
 {
   "name": "@tealight.uk/soda",
-  "module": "./index.ts",
-  "type": "module",
   "main": "./index.ts",
+  "module": "./index.ts",
   "devDependencies": {
+    "@types/cookie": "^0.5.1",
     "bun-types": "latest"
   },
   "peerDependencies": {
     "typescript": "^5.0.0"
+  },
+  "type": "module",
+  "dependencies": {
+    "cookie": "^0.5.0"
   }
 }

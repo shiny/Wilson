@@ -1,10 +1,7 @@
-declare type MatchedRoute = import('bun').MatchedRoute
-declare type SodaResponse = Response | string | number | Object
-
-declare type FetchMethod = (ctx: HttpContext) => void | SodaResponse | Promise<SodaResponse>
-
-
 declare module Soda {
+    declare type MatchedRoute = import('bun').MatchedRoute
+    declare type SodaResponseResult = string | number | Object
+    declare type FetchMethod = (ctx: HttpContext) => void | SodaResponseResult | Promise<SodaResponseResult>
     declare interface HttpResource {
         index?: FetchMethod
         show?: FetchMethod
@@ -12,9 +9,14 @@ declare module Soda {
         update?:FetchMethod
         destory?: FetchMethod
     }
+    declare type SodaRequest = import("./SodaRequest").default
+    declare type SodaResponse = import("./SodaResponse").default
+    declare type Application = import("./Application").default
     declare interface HttpContext {
+        app: Application
         matchedRoute: MatchedRoute
-        request: Request
+        request: SodaRequest
+        response: SodaResponse
         params: MatchedRoute['params']
         query: MatchedRoute['query']
     }

@@ -1,7 +1,50 @@
-import { Serve, peek } from "bun"
+import { join, dirname } from "path"
+import { FileSystemRouter, Serve, peek } from "bun"
+import SodaRequest from "SodaRequest"
+import SodaResponse from "SodaResponse"
 import HttpNotFound from "./Response/HttpNotFound"
-import { dirname, join } from "path"
-import JsonResponse from "./Response/JsonResponse"
+
+export default class Application {
+    appRoot: string = ''
+    router: FileSystemRouter
+    constructor() {
+        this.appRoot = dirname(Bun.main)
+        this.router = new Bun.FileSystemRouter({
+            style: "nextjs",
+            dir: join(this.appRoot, 'controllers'),
+        })
+    }
+    start(): Serve {
+        const app = this
+        return {
+            async fetch(request: Request) {
+                const matchedRoute = app.router.match(request)
+                if (matchedRoute) {
+                    const response = new SodaResponse
+                    const { default: handler } = await import(matchedRoute.filePath)
+                    if (isCallable(request.method, handler)) {
+                        const controller: Soda.HttpResource = handler
+                        const ctx: Soda.HttpContext = {
+                            app,
+                            request: SodaRequest.from(request),
+                            response,
+                            matchedRoute,
+                            // add alias
+                            params: matchedRoute.params,
+                            query: matchedRoute.query
+                        }
+                        return getResponse(ctx, controller)
+                    }
+                }
+                return SodaResponse.send('Http Not Found', 404)
+            }
+        }
+    }
+    static start(): Serve {
+        const app = new Application
+        return app.start()
+    }
+}
 
 function isFunction(handler: unknown): handler is Function {
     return typeof handler === 'function'
@@ -66,42 +109,8 @@ async function getResponse(ctx: Soda.HttpContext, resources: Soda.HttpResource) 
     if (result instanceof Response) {
         return result
     }
-    if (typeof result === 'string') {
-        return new Response(result, {
-            headers: {
-                'content-type': 'text/plain'
-            }
-        })
+    if (result instanceof SodaResponse) {
+        return result.toWebResponse()
     }
-    return new JsonResponse(result)
-}
-
-export default function serve(): Serve {
-
-    const appDir = dirname(Bun.main)
-    const router = new Bun.FileSystemRouter({
-        style: "nextjs",
-        dir: join(appDir, 'controller'),
-    })
-
-    return {
-        async fetch(request: Request) {
-            const matchedRoute = router.match(request)
-            if (matchedRoute) {
-                const { default: handler } = await import(matchedRoute.filePath)
-                if (isCallable(request.method, handler)) {
-                    const controller: Soda.HttpResource = handler
-                    const ctx: Soda.HttpContext = {
-                        request,
-                        matchedRoute,
-                        // add alias
-                        params: matchedRoute.params,
-                        query: matchedRoute.query
-                    }
-                    return getResponse(ctx, controller)
-                }
-            }
-            return new HttpNotFound()
-        }
-    }
+    return ctx.response.send(result as (string | number | void | Object))
 }

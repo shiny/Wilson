@@ -1,3 +1,2 @@
-import { serve } from "@tealight.uk/soda"
-
-export default serve()
+import { Application } from "@tealight.uk/soda"
+export default Application.start()
