@@ -1,6 +1,7 @@
 import cookie, { CookieSerializeOptions } from 'cookie'
+import Macroable from '@poppinss/macroable'
 
-export default class SodaResponse {
+export default class SodaResponse extends Macroable {
     public headers = new Headers()
     public rawContent: string = ''
     public contentType: string = ''

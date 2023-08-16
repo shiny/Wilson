@@ -1,8 +1,10 @@
 import cookie from 'cookie'
+import Macroable from '@poppinss/macroable'
 
-export default class SodaRequest {
+export default class SodaRequest extends Macroable {
 
     constructor(public request: Request) {
+        super()
         const rawCookie = this.request.headers.get('cookie')
         if(rawCookie) {
             this.cookies = cookie.parse(rawCookie)

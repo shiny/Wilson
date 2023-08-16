@@ -3,11 +3,13 @@ import { FileSystemRouter, Serve, peek } from "bun"
 import SodaRequest from "./SodaRequest"
 import SodaResponse from "./SodaResponse"
 import HttpNotFound from "./Response/HttpNotFound"
+import Macroable from "@poppinss/macroable"
 
-export default class Application {
+export default class Application extends Macroable {
     appRoot: string = ''
     router: FileSystemRouter
     constructor() {
+        super()
         this.appRoot = dirname(Bun.main)
         this.router = new Bun.FileSystemRouter({
             style: "nextjs",
