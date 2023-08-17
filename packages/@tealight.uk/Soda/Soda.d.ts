@@ -13,7 +13,7 @@ declare module Soda {
     declare type SodaResponse = import("./SodaResponse").default
     declare type Application = import("./Application").default
     declare interface HttpContext {
-        app: soda.Application
+        app: Application
         matchedRoute: MatchedRoute
         request: SodaRequest
         response: SodaResponse
